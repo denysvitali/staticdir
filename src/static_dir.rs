@@ -50,7 +50,11 @@ impl<T> StaticDir<T> where T: Send + Sync + Any + ResponseStrategy {
 #[inline]
 fn extend_req_path<P>(request: &Request, root_path: P) -> PathBuf where P: Into<PathBuf> {
     let mut path = root_path.into();
-    let decoded_req_path = request.url.path.iter().map(|part| String::from_utf8(percent_decode(part.as_bytes())).unwrap());
+    let path_buf_arr = request.url.path();
+    let decoded_req_path = path_buf_arr.iter()
+        .map(|part|
+            String::from_utf8(percent_decode(part.as_bytes())).unwrap()
+        );
     path.extend(decoded_req_path);
     path
 }

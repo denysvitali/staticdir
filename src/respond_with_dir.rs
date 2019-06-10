@@ -51,9 +51,9 @@ struct DirEntryState {
     file_type: FileType,
     file_name: String,
     size: u64,
-    creation_time: Option<u64>,
-    last_modification_time: u64,
-    last_access_time: u64,
+    creation_time: Option<i64>,
+    last_modification_time: i64,
+    last_access_time: i64,
 }
 
 #[derive(RustcDecodable, RustcEncodable, PartialEq, Eq, Debug)]
@@ -85,17 +85,17 @@ impl DirEntryState {
         };
 
         let metadata = try!(entry.metadata());
-        let last_modification_time = FileTime::from_last_modification_time(&metadata).seconds_relative_to_1970();
-        let last_access_time = FileTime::from_last_access_time(&metadata).seconds_relative_to_1970();
-        let creation_time = FileTime::from_creation_time(&metadata).map(|time| time.seconds_relative_to_1970());
+        let last_modification_time = FileTime::from_last_modification_time(&metadata).unix_seconds();
+        let last_access_time = FileTime::from_last_access_time(&metadata).unix_seconds();
+        let creation_time = FileTime::from_creation_time(&metadata).map(|time| time.unix_seconds());
 
         Ok(DirEntryState{
-            file_name: file_name,
-            file_type: file_type,
+            file_name,
+            file_type,
             size: metadata.len(),
-            creation_time: creation_time,
-            last_modification_time: last_modification_time,
-            last_access_time: last_access_time,
+            creation_time,
+            last_modification_time,
+            last_access_time,
         })
     }
 }
